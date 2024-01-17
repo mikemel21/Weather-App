@@ -33,7 +33,7 @@
                     class="weather-icon"
                     v-bind:src="
                         locationWeatherCondition?.condition.icon ??
-                        './not-available-circle.png'
+                        'src/components/not-available-circle.png'
                     "
                 />
                 <p class="condition-text">

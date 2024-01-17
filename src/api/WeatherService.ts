@@ -20,7 +20,7 @@ export async function returnLocation(
             {
                 params: {
                     // TODO - move to .env file
-                    key: "dd043ef9f9a24427add173509231111",
+                    key: "560bcfc8787a49f08b800234241701",
                     q: query,
                 },
             }
@@ -44,7 +44,7 @@ export async function getWeather(
             {
                 params: {
                     // TODO - move to .env file
-                    key: "dd043ef9f9a24427add173509231111",
+                    key: "560bcfc8787a49f08b800234241701",
                     q: query,
                     days: numdays,
                 },
