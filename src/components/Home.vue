@@ -1,10 +1,8 @@
 <template>
     <div class="home-view">
         <header class="head">
-            <img class="logo" src="./weatherbroslogo.png" />
-
+            <img class="logo" src="./images/weatherbroslogo.png" />
             <Search @update-location="fetchWeather" />
-
             <button class="button" @click="outtaHere">Logout</button>
         </header>
         <main class="main">
@@ -23,18 +21,15 @@
 
             <div class="information">
                 <div class="info-head">
-                    <img v-if="checkStar" src="./star-fill.svg" @click="updateFavorites" />
-                    <img v-else src="./star-hollow.svg" @click="updateFavorites" />
+                    <img v-if="checkStar" src="./images/star-fill.svg" @click="updateFavorites" />
+                    <img v-else src="./images/star-hollow.svg" @click="updateFavorites" />
                     <!-- <img :src="starImage" @click="updateFavorites" /> -->
 
                     <p class="loc-text">{{ locationString }}</p>
                 </div>
                 <img
                     class="weather-icon"
-                    v-bind:src="
-                        locationWeatherCondition?.condition.icon ??
-                        './not-available-circle.png'
-                    "
+                    v-bind:src="locationWeatherCondition?.condition.icon ?? '/not-available-circle.png'"
                 />
                 <p class="condition-text">
                     {{ locationWeatherCondition?.condition.text }}
@@ -181,8 +176,8 @@
                 </div>
             </div>
 
-            <div class="events">
-                <p>Events</p>
+            <div class="news">
+                <p>News</p>
                 <div class="News-tabs" v-for="n in news">
                     <NewsEntry
                         :image="n.image"
@@ -197,7 +192,8 @@
 </template>
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, computed } from "vue";
-import { myRouter } from "../routing";
+//import myRouter from "../routing";
+import getRouter from "../routing";
 import Search from "./Search.vue";
 import { getWeather } from "../api/WeatherService";
 import NewsEntry from "./NewsEntry.vue";
@@ -337,7 +333,8 @@ const readFavorites = () => {
 
 const outtaHere = () => {
     if (auth) signOut(auth);
-    myRouter.push({ path: "./" });
+    //myRouter.push({ path: "./" });
+    getRouter.push({ path: "./" });
 };
 
 const getDate = (index: number) => {
@@ -536,7 +533,7 @@ const updateFavorites = () => {
 }
 
 .information,
-.events,
+.news,
 .favorited-locations {
     color: white;
     position: sticky;
@@ -551,14 +548,14 @@ const updateFavorites = () => {
     text-align: center;
 }
 
-.events ul {
+.news ul {
     color: white;
     justify-content: start;
     font-size: 20px;
 }
 
 .favorited-locations p,
-.events p {
+.news p {
     font-size: 30px;
     text-decoration: underline;
 }

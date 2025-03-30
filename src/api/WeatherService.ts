@@ -19,8 +19,7 @@ export async function returnLocation(
             "https://api.weatherapi.com/v1/search.json",
             {
                 params: {
-                    // TODO - move to .env file
-                    key: "560bcfc8787a49f08b800234241701",
+                    key: import.meta.env.VITE_WEATHER_API_KEY,
                     q: query,
                 },
             }
@@ -43,8 +42,7 @@ export async function getWeather(
             "https://api.weatherapi.com/v1/forecast.json",
             {
                 params: {
-                    // TODO - move to .env file
-                    key: "560bcfc8787a49f08b800234241701",
+                    key: import.meta.env.VITE_WEATHER_API_KEY,
                     q: query,
                     days: numdays,
                 },

@@ -111,7 +111,8 @@ import { db } from "../main";
         // add user to Users collection
         const userDoc: DocumentReference = doc(db, "Users", u_email.value);
         setDoc(userDoc, { email: u_email.value, user_id: auth.currentUser?.uid });
-        router.push({ path: "./Home", params: { byWayOf: "Email" } });
+        //router.push({ path: "./Home", params: { byWayOf: "Email" } });
+        router.push({ name: "Home", params: { byWayOf: "Email" } });
       } else {
         showMessage("You must first verify your email");
         await signOut(auth);
@@ -129,7 +130,7 @@ import { db } from "../main";
         const id : string = result.user.uid;
         addUserToCollection(user, id);
       });
-      router.push({ path: "./Home", params: { byWayOf: "Google" } });
+      router.push({ name: "Home", params: { byWayOf: "Google" } });
     } catch (err) {
       showMessage(`Unable to login with GMail ${err}`);
     }
@@ -143,7 +144,7 @@ import { db } from "../main";
         const id : string = result.user.uid;
         addUserToCollection(user, id);
       });
-      router.push({ path: "./Home", params: { byWayOf: "GitHub" } });
+      router.push({ name: "Home", params: { byWayOf: "GitHub" } });
     } catch (err) {
       showMessage(`Unable to login with GitHub ${err}`);
     }
