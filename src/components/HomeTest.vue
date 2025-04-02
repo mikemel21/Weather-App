@@ -30,33 +30,55 @@
                             <p class="fs-4"> {{ locationWeatherCondition?.condition.text ?? 'n/a' }}</p>
                         </div>    
                     </div>
+                    
+                    <div class="row">
+                        <!-- Today's Forecast -->
+                        <div class="col-12 bg-secondary rounded mt-5 p-3">
+                            <p class="fs-6 text-info">Today's Forecast</p>
+                            <div class="d-flex justify-content-between">
+                                <div class="col text-center border-info position-relative"
+                                    v-for="(hour, index) in nextSixHours"
+                                    :key="index" :class="{'border-start': index > 0}"
+                                >    
+                                    <div class="icon-bar d-flex justify-content-center">
+                                        <img style="width:75px; height:75px;" v-bind:src="hour.condition.icon"/>
+                                    </div>
+                                    <p class="fs-3 mb-1">{{ Math.round(hour.temp_f) }}&deg;</p>
+                                    <p class="mt-2 fs-5">{{ new Date(hour.time).getHours() }}:00</p>
 
-                    <div class="bg-secondary d-flex row rounded mt-5 p-3">
-                        <p class="fs-6 text-info">Today's Forecast</p>
-                        <!-- <div class="col text-center bg-primary me-1 rounded" v-for="(hour, index) in locationWeatherHourly.slice(0, 6)" :key="index" -->
-                        <div class="col text-center border-info position-relative" v-for="(hour, index) in locationWeatherHourly.slice(0, 6)" :key="index"
-                            :class="{'border-start': index > 0}">
-                            <p class="mb-1">{{ Math.round(hour.temp_f) }}&deg;</p>
+                                    <div class="mx-auto" :style="{ height: hour.temp_f + '%' }"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Details (Aligned Properly) -->
+                        <div class="col-12 bg-secondary rounded mt-3 p-3">
+                            <p class="fs-6 text-info">Weather Conditions</p>
                             
-                            <div class="icon-bar d-flex justify-content-center">
-                                <img style="width:50px; height:50px;" v-bind:src="hour.condition.icon"/>
+                            <div class="row p-2">
+                                <div class="col text-center bg-primary">
+                                    <p class="fs-5 text-info"><i class="fs-4 text-info bi bi-thermometer-high"></i> Feels Like</p>
+                                    <p class="fs-3">{{locationWeatherCondition?.feelslike_f ?? 0}}&deg;</p>
+                                </div>
+                                <div class="col text-center bg-primary ms-3">
+                                    <p class="fs-5 text-info"><i class="fs-4 text-info bi bi-sun-fill"></i> UV Index</p>
+                                    <p class="fs-3">{{ locationWeatherCondition?.uv ?? 0}}</p>
+                                </div>
                             </div>
 
-                            <div class="temp-bar mx-auto" :style="{ height: hour.temp_f + '%' }"></div>
+                            <div class="row p-2 mt-3">
+                                <div class="col text-center bg-primary">
+                                    <p class="fs-5 text-info"><i class="fs-4 text-info bi bi-droplet"></i> Chance of Rain</p>
+                                    <p class="fs-3">{{ locationWeatherCondition?.precip_in ?? 0 }} in.</p>
+                                </div>
+                                <div class="col text-center bg-primary ms-3">
+                                    <p class="fs-5 text-info"><i class="fs-4 text-info bi bi-water"></i> Humidity</p>
+                                    <p class="fs-3">{{ locationWeatherCondition?.humidity ?? 0 }}%</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- <div class="bg-secondary d-flex row rounded mt-5 p-3">
-                        <p class="fs-6 text-info">Today's Forecast</p>
-                        <div class="col text-center" v-for="(hour, index) in locationWeatherHourly.slice(0, 6)" :key="index">
-                            <div class="icon-bar border border-2 border-top-0 border-bottom-0 border-info" style="--bs-border-opacity: .5;">
-                                <p class="fs-5">{{ Math.round(hour.temp_f) }}&deg</p> 
-                                <img v-bind:src="hour.condition.icon"/>
-                            </div>
-
-                            <div class="temp-bar" :style="{ height: hour.temp_f + '%' }"></div>
-                        </div>
-                    </div> -->
                 </div>
             </div>
         </div>
@@ -341,5 +363,25 @@ const updateFavorites = () => {
         starImage.value = "src/assets/star-fill.svg";
     }
 };
+
+const nextSixHours = computed(() => {
+  // Get current date and time
+  const now = new Date();
+  const currentHour = now.getHours();
+  
+  // Find the index for the current hour or next hour
+  let startIndex = locationWeatherHourly.value.findIndex((hour) => {
+    const hourTime = new Date(hour.time);
+    return hourTime.getHours() >= currentHour;
+  });
+  
+  // If not found (might happen at the end of the day), start from the beginning
+  if (startIndex === -1) {
+    startIndex = 0;
+  }
+  
+  // Return only the next 6 hours
+  return locationWeatherHourly.value.slice(startIndex, startIndex + 6);
+});
 
 </script>
