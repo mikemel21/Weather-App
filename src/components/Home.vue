@@ -1,10 +1,22 @@
 <template>
     <div class="home-view">
-        <header class="head">
-            <img class="logo" src="./images/weatherbroslogo.png" />
-            <Search @update-location="fetchWeather" />
-            <button class="button" @click="outtaHere">Logout</button>
-        </header>
+        <nav class="navbar navbar-expand-lg rounded" :style="{ width:'100%', backgroundColor:'#586f7c' }">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample11" aria-controls="navbarsExample11" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse d-flex justify-content-between align-items-center" id="navbarsExample11">
+                    <div class="d-flex flex-grow-1 justify-content-center">
+                        <Search @update-location="fetchWeather" />
+                        <button class="btn btn-primary" @click="logout">Log Out</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- <img class="logo" src="./images/weatherbroslogo.png" /> -->
+            
         <main class="main">
             <div class="favorited-locations">
                 <p>Favorite Locations</p>
@@ -23,7 +35,7 @@
                 <div class="info-head">
                     <img v-if="checkStar" src="./images/star-fill.svg" @click="updateFavorites" />
                     <img v-else src="./images/star-hollow.svg" @click="updateFavorites" />
-                    <!-- <img :src="starImage" @click="updateFavorites" /> -->
+                    <!--<img :src="starImage" @click="updateFavorites" /> -->
 
                     <p class="loc-text">{{ locationString }}</p>
                 </div>
@@ -331,7 +343,7 @@ const readFavorites = () => {
   });
 };
 
-const outtaHere = () => {
+const logout = () => {
     if (auth) signOut(auth);
     //myRouter.push({ path: "./" });
     getRouter.push({ path: "./" });
@@ -497,7 +509,6 @@ const updateFavorites = () => {
     padding-bottom: 30px;
     z-index: 1000000;
 }
-
 .logo {
     text-align: left;
     width: 125px;

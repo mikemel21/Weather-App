@@ -1,0 +1,30 @@
+    <div class="container-fluid min-vh-100 d-flex flex-column pt-2 ps-5 pe-5 pb-5 custom_bg">
+      <nav class="navbar navbar-expand-lg bg-gradient rounded position-sticky component_custom">
+        <div class="container-fluid d-flex align-items-center">
+          <p class="text-white my-auto">WeatherBros</p>
+          <Search @update-location="fetchWeather"/>
+          <button @click="logout" class="btn btn-danger">Log Out</button>
+        </div>
+      </nav>
+      
+      <main class="flex-grow-1 d-flex flex-column container-fluid mt-2">
+        <div class="row flex-grow-1">
+          <div class="col text-white text-center bg-gradient rounded me-2 component_custom d-flex flex-column">
+            <p>Favorite Locations</p>
+            <ul class="flex-grow-1">
+              <li v-for="loc in favoriteLocations" class="fav-locations" @click="fetchWeather(loc.id)">
+                {{ loc.id }}
+              </li>
+            </ul>
+          </div>
+          
+          <div class="col-8 text-white text-center bg-gradient rounded me-2 component_custom d-flex flex-column">
+            <p>test</p>
+          </div>
+          
+          <div class="col text-white text-center bg-gradient rounded component_custom d-flex flex-column">
+            <p>News</p>
+          </div>
+        </div>
+      </main>
+    </div>

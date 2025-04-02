@@ -1,24 +1,20 @@
 <template>
-    <div class="search-container">
-        <input
+    <div class="d-flex align-content-center input-group input-group position-relative w-25">
+        <input class="bg-secondary p-1 w-100 border-0 rounded" aria-describedby="inputGroup-sizing-default"
             placeholder="Enter Location..."
             type="text"
-            class="search-input"
             v-model="locationInput"
             @keyup.enter="handleLocationEnter()"
             @input="fetchLocations"
         />
-        <ul v-if="locationSuggestions.length" class="location-dropdown">
-            <li
-                v-for="location in locationSuggestions"
-                @click="handleLocationClick(location)"
-            >
+        <ul v-if="locationSuggestions.length" class="list-group border m-1 rounded">
+            <button v-for="location in locationSuggestions" @click="handleLocationClick(location)" 
+                class="list-group-item list-group-item-action">
                 {{ location.name }}, {{ location.region }}
-            </li>
+            </button>
         </ul>
     </div>
 </template>
-
 <script setup lang="ts">
 import { ref } from "vue";
 import { returnLocation } from "../api/WeatherService";
@@ -60,28 +56,6 @@ const handleLocationEnter = () => {
 };
 </script>
 <style scoped>
-.search-container {
-    position: relative;
-    width: 443.6px;
-    align-self: center;
-    display: flex;
-    flex-direction: column;
-}
-
-.search-input {
-    box-sizing: border-box;
-    padding: 1rem;
-    width: 100%;
-    height: 56.8px;
-    border-radius: 1rem;
-    border: none;
-    font-size: 2rem;
-    font-weight: 300;
-    font-family: inherit;
-    background-color: #465b68;
-    color: white;
-}
-
 .location-dropdown {
     width: 100%;
     border-radius: 1rem;

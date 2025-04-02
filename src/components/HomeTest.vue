@@ -1,0 +1,345 @@
+<template>
+    <div class="container-fluid min-vh-100 bg-white p-3">
+        <div class="d-flex">
+            <!-- Left Menu -->
+            <div class="bg-secondary rounded d-flex p-3 justify-content-center" style="width:5%;">
+                <p>test</p>
+            </div>
+
+            <!-- Main Screen -->
+            <div class="rounded container-fluid ms-3 me-3" style="width:95%;">
+                <!-- Search bar and button container -->
+                <div class="d-flex justify-content-between align-items-center pb-3">
+                    <div class="flex-grow-1 me-3">
+                        <Search @update-location="fetchWeather"/>
+                    </div>
+                    <div>
+                        <button @click="logout" class="btn btn-danger">Log Out</button>
+                    </div>
+                </div>
+                
+                <!-- Weather Info Container -->
+                <div class="container-fluid justify-content-start m-0" style="width: 75%;">
+                    <p class="fs-1 font-monospace fw-bold mb-0 pe-3">{{ locationString }}</p>
+                    
+                    <div class="d-flex flex-row align-items-center">
+                        <img class="img-fluid p-2 " style="width: 125px; height: 125px;"
+                            v-bind:src="locationWeatherCondition?.condition.icon ?? '/not-available-circle.png'"/>
+                        <div class="p-2">
+                            <p class="fs-2 fw-bold mb-0">{{ locationWeatherCondition?.temp_f ?? 'n/a'}}&deg</p>
+                            <p class="fs-4"> {{ locationWeatherCondition?.condition.text ?? 'n/a' }}</p>
+                        </div>    
+                    </div>
+
+                    <div class="bg-secondary d-flex row rounded mt-5 p-3">
+                        <p class="fs-6 text-info">Today's Forecast</p>
+                        <!-- <div class="col text-center bg-primary me-1 rounded" v-for="(hour, index) in locationWeatherHourly.slice(0, 6)" :key="index" -->
+                        <div class="col text-center border-info position-relative" v-for="(hour, index) in locationWeatherHourly.slice(0, 6)" :key="index"
+                            :class="{'border-start': index > 0}">
+                            <p class="mb-1">{{ Math.round(hour.temp_f) }}&deg;</p>
+                            
+                            <div class="icon-bar d-flex justify-content-center">
+                                <img style="width:50px; height:50px;" v-bind:src="hour.condition.icon"/>
+                            </div>
+
+                            <div class="temp-bar mx-auto" :style="{ height: hour.temp_f + '%' }"></div>
+                        </div>
+                    </div>
+
+                    <!-- <div class="bg-secondary d-flex row rounded mt-5 p-3">
+                        <p class="fs-6 text-info">Today's Forecast</p>
+                        <div class="col text-center" v-for="(hour, index) in locationWeatherHourly.slice(0, 6)" :key="index">
+                            <div class="icon-bar border border-2 border-top-0 border-bottom-0 border-info" style="--bs-border-opacity: .5;">
+                                <p class="fs-5">{{ Math.round(hour.temp_f) }}&deg</p> 
+                                <img v-bind:src="hour.condition.icon"/>
+                            </div>
+
+                            <div class="temp-bar" :style="{ height: hour.temp_f + '%' }"></div>
+                        </div>
+                    </div> -->
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+<script setup lang="ts">
+import { ref, onMounted, onBeforeUnmount, computed } from "vue";
+import myRouter from "../routing";
+//import getRouter from "../routing";
+import Search from "./Search.vue";
+import { getWeather } from "../api/WeatherService";
+//import NewsEntry from "./NewsEntry.vue";
+import {
+    getAuth,
+    onAuthStateChanged,
+    User,
+    signOut,
+} from "firebase/auth";
+import {
+    collection,
+    deleteDoc,
+    doc,
+    onSnapshot,
+    setDoc,
+    getDocs,
+    DocumentData,
+    QuerySnapshot,
+CollectionReference,
+QueryDocumentSnapshot,
+} from "firebase/firestore";
+import { db } from "../main";
+//import { selectAllNews } from "../main";
+
+const locationString = ref<string>("No Location Selected");
+const locationWeatherCondition = ref<weatherCondition>();
+const locationWeatherHourly = ref<weatherHourlyForecast[]>([]);
+const locationWeatherDaily = ref<weatherDailyForcast[]>([]);
+const starImage = ref<string>("src/assets/star-hollow.svg");
+
+type newsType = {
+    image: string;
+    title: string;
+    url: string;
+}
+
+const news = ref<newsType[]>([]);
+
+const getAllNews = () => {
+    const newsColl:CollectionReference = collection(db, "News");
+    getDocs(newsColl).then((qs: QuerySnapshot) => {
+        qs.forEach((qd: QueryDocumentSnapshot) => {
+            news.value.push(qd.data() as newsType);
+        });
+    });
+}
+
+interface Location {
+    id: string
+};
+const favoriteLocations = ref<Location[]>([]);
+const checkStar = computed(() => {
+    return favoriteLocations.value.some(location => location.id === locationString.value);
+});
+
+const fetchWeather = async (location: string) => {
+    console.log("Location:", location);
+    const weather = await getWeather(location, 3);
+
+    if (weather) {
+        console.log("Weather:", weather);
+    } else {
+        console.log("No weather found");
+    }
+
+    locationString.value = location;
+    locationWeatherCondition.value = { ...weather.current };
+
+    let hourData = weather.forecast.forecastday[0].hour;
+    let dayData = weather.forecast.forecastday;
+
+    locationWeatherHourly.value = hourData.map(
+        (hour: weatherHourlyForecast) => hour
+    );
+    locationWeatherDaily.value = dayData.map((day: any) => day.day);
+    console.log(locationWeatherDaily.value);
+};
+
+const fetchRandomLocation = async () => {
+    const popularLocationsRef = collection(db, "Popular");
+    const querySnapshot = await getDocs(popularLocationsRef);
+    const locations: any = [];
+
+    querySnapshot.forEach((doc) => {
+        locations.push(doc.data().name);
+    });
+
+    const randomIndex = Math.floor(Math.random() * locations.length);
+    return locations[randomIndex];
+};
+
+onMounted(async () => {
+    const randomLocation = await fetchRandomLocation();
+    if (randomLocation) {
+        fetchWeather(randomLocation);
+        getAllNews();
+    }
+});
+
+const auth = getAuth();
+const user = ref<string>("");
+const Coll = ref();
+
+onMounted(() => {
+  const unsubscribeAuth = onAuthStateChanged(auth, (userAuth: User | null) => {
+    if (userAuth) {
+      // User is signed in.
+      user.value = userAuth.email || "";
+      Coll.value = collection(db, "Users", user.value, "Favorites");
+      readFavorites();
+      console.log("Auth changed", userAuth.email);
+    } else {
+      // No user is signed in.
+      console.log("User is signed out.");
+    }
+  });
+
+  // Clean up the auth listener when the component is unmounted
+  onBeforeUnmount(() => {
+    unsubscribeAuth();
+  });
+});
+
+const readFavorites = () => {
+  const unsubscribeSnapshot = onSnapshot(Coll.value, (querySnapshot: QuerySnapshot<DocumentData>) => {
+    favoriteLocations.value = [];
+    querySnapshot.forEach((doc) => {
+        favoriteLocations.value.push({ id: doc.id, ...doc.data() });
+    });
+  });
+
+  // Clean up the snapshot listener when the component is unmounted
+  onBeforeUnmount(() => {
+    unsubscribeSnapshot();
+  });
+};
+
+const logout = () => {
+    if (auth) signOut(auth);
+    myRouter.push({ path: "./" });
+};
+
+const getDate = (index: number) => {
+    const today = new Date();
+    today.setDate(today.getDate() + index);
+
+    const daysOfWeek = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+    ];
+    const dayOfWeek = daysOfWeek[today.getDay()];
+
+    return dayOfWeek;
+};
+
+type weatherCondition = {
+    cloud: number;
+    condition: { text: string; icon: string; code: number };
+    feelslike_c: number;
+    feelslike_f: number;
+    gust_kph: number;
+    gust_mph: number;
+    humidity: number;
+    is_day: number;
+    last_updated: string;
+    last_updated_epoch: number;
+    precip_in: number;
+    precip_mm: number;
+    pressure_in: number;
+    pressure_mb: number;
+    temp_c: number;
+    temp_f: number;
+    uv: number;
+    vis_km: number;
+    vis_miles: number;
+    wind_degree: number;
+    wind_dir: string;
+    wind_kph: number;
+    wind_mph: number;
+};
+
+type weatherHourlyForecast = {
+    chance_of_rain: number;
+    chance_of_snow: number;
+    cloud: number;
+    condition: {
+        code: number;
+        icon: string;
+        text: string;
+    };
+    dewpoint_c: number;
+    dewpoint_f: number;
+    feelslike_c: number;
+    feelslike_f: number;
+    gust_kph: number;
+    gust_mph: number;
+    heatindex_c: number;
+    heatindex_f: number;
+    humidity: number;
+    is_day: number;
+    precip_in: number;
+    precip_mm: number;
+    pressure_in: number;
+    pressure_mb: number;
+    temp_c: number;
+    temp_f: number;
+    time: string;
+    time_epoch: number;
+    uv: number;
+    vis_km: number;
+    vis_miles: number;
+    will_it_rain: number;
+    will_it_snow: number;
+    wind_degree: number;
+    wind_dir: string;
+    wind_kph: number;
+    wind_mph: number;
+    windchill_c: number;
+    windchill_f: number;
+};
+
+type weatherDailyForcast = {
+    avghumidity: number;
+    avgtemp_c: number;
+    avgtemp_f: number;
+    avgvis_km: number;
+    avgvis_miles: number;
+    condition: {
+        code: number;
+        icon: string;
+        text: string;
+    };
+    daily_chance_of_rain: number;
+    daily_chance_of_snow: number;
+    daily_will_it_rain: number;
+    daily_will_it_snow: number;
+    maxtemp_c: number;
+    maxtemp_f: number;
+    maxwind_kph: number;
+    maxwind_mph: number;
+    mintemp_c: number;
+    mintemp_f: number;
+    totalprecip_in: number;
+    totalprecip_mm: number;
+    totalsnow_cm: number;
+    uv: number;
+};
+
+const updateFavorites = () => {
+    const user: string = getAuth().currentUser?.email || "";
+    const favDoc = doc(db, "Users", user, "Favorites", locationString.value);
+    if (starImage.value == "src/assets/star-fill.svg") {
+        if (locationString.value != "No location selected") {
+            const delDoc = doc(
+                db,
+                "Users",
+                user,
+                "Favorites",
+                locationString.value
+            );
+            starImage.value = "src/assets/star-hollow.svg";
+            deleteDoc(delDoc);
+        } else {
+            console.log("You must choose a location before favoriting.");
+        }
+    } else {
+        setDoc(favDoc, { name: locationString.value });
+        starImage.value = "src/assets/star-fill.svg";
+    }
+};
+
+</script>

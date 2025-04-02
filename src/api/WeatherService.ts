@@ -16,7 +16,7 @@ export async function returnLocation(
 ): Promise<Location[] | null> {
     try {
         const response = await axios.get<Location[]>(
-            "https://api.weatherapi.com/v1/search.json",
+            "http://api.weatherapi.com/v1/search.json",
             {
                 params: {
                     key: import.meta.env.VITE_WEATHER_API_KEY,
@@ -39,7 +39,7 @@ export async function getWeather(
 ): Promise<any | null> {
     try {
         const response = await axios.get(
-            "https://api.weatherapi.com/v1/forecast.json",
+            "http://api.weatherapi.com/v1/forecast.json",
             {
                 params: {
                     key: import.meta.env.VITE_WEATHER_API_KEY,

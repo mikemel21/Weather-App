@@ -1,0 +1,11 @@
+$font-family-monospace: 'Courier New', monospace;
+
+$primary:   #b1d4e0;
+$secondary: rgb(233, 233, 233);
+$info:      rgb(102, 102, 102);
+
+// $theme-colors-border-subtle: (
+//     "primary" : ;
+// );
+
+@import "../../node_modules/bootstrap/scss/bootstrap";
