@@ -1,89 +1,92 @@
 <template>
-    <div class="container-fluid min-vh-100 bg-white p-3">
-        <div class="d-flex">
-            <!-- Left Menu -->
-            <div class="bg-secondary rounded d-flex p-3 justify-content-center" style="width:5%;">
-                <p>test</p>
+    <div class="container-fluid min-vh-100 bg-white d-flex p-3">
+        <!-- Left Menu -->
+        <div class="bg-secondary rounded d-flex p-3 justify-content-center flex-grow-1" style="width:5%;">
+            <p>test</p>
+        </div>
+
+        <!-- Main Screen -->
+        <div class="rounded container-fluid ms-3 me-3 d-flex flex-column flex-grow-1">
+            <!-- Search bar and button container -->
+            <div class="d-flex justify-content-between align-items-center pb-3">
+                <div class="flex-grow-1 me-3">
+                    <Search @update-location="fetchWeather"/>
+                </div>
+                <div>
+                    <button @click="logout" class="btn btn-danger">Log Out</button>
+                </div>
             </div>
-
-            <!-- Main Screen -->
-            <div class="rounded container-fluid ms-3 me-3" style="width:95%;">
-                <!-- Search bar and button container -->
-                <div class="d-flex justify-content-between align-items-center pb-3">
-                    <div class="flex-grow-1 me-3">
-                        <Search @update-location="fetchWeather"/>
-                    </div>
-                    <div>
-                        <button @click="logout" class="btn btn-danger">Log Out</button>
-                    </div>
-                </div>
+            
+            <!-- Weather Info Container -->
+            <div class="container-fluid flex-grow-1 d-flex flex-column">
+                <p class="fs-1 font-monospace fw-bold mb-0 pe-3">{{ locationString }}</p>
                 
-                <!-- Weather Info Container -->
-                <div class="container-fluid justify-content-start m-0" style="width: 75%;">
-                    <p class="fs-1 font-monospace fw-bold mb-0 pe-3">{{ locationString }}</p>
-                    
-                    <div class="d-flex flex-row align-items-center">
-                        <img class="img-fluid p-2 " style="width: 125px; height: 125px;"
-                            v-bind:src="locationWeatherCondition?.condition.icon ?? '/not-available-circle.png'"/>
-                        <div class="p-2">
-                            <p class="fs-2 fw-bold mb-0">{{ locationWeatherCondition?.temp_f ?? 'n/a'}}&deg</p>
-                            <p class="fs-4"> {{ locationWeatherCondition?.condition.text ?? 'n/a' }}</p>
-                        </div>    
-                    </div>
-                    
-                    <div class="row">
-                        <!-- Today's Forecast -->
-                        <div class="col-12 bg-secondary rounded mt-5 p-3">
-                            <p class="fs-6 text-info">Today's Forecast</p>
-                            <div class="d-flex justify-content-between">
-                                <div class="col text-center border-info position-relative"
-                                    v-for="(hour, index) in nextSixHours"
-                                    :key="index" :class="{'border-start': index > 0}"
-                                >    
-                                    <div class="icon-bar d-flex justify-content-center">
-                                        <img style="width:75px; height:75px;" v-bind:src="hour.condition.icon"/>
-                                    </div>
-                                    <p class="fs-3 mb-1">{{ Math.round(hour.temp_f) }}&deg;</p>
-                                    <p class="mt-2 fs-5">{{ new Date(hour.time).getHours() }}:00</p>
-
-                                    <div class="mx-auto" :style="{ height: hour.temp_f + '%' }"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Details (Aligned Properly) -->
-                        <div class="col-12 bg-secondary rounded mt-3 p-3">
-                            <p class="fs-6 text-info">Weather Conditions</p>
-                            
-                            <div class="row p-2">
-                                <div class="col text-center bg-primary">
-                                    <p class="fs-5 text-info"><i class="fs-4 text-info bi bi-thermometer-high"></i> Feels Like</p>
-                                    <p class="fs-3">{{locationWeatherCondition?.feelslike_f ?? 0}}&deg;</p>
-                                </div>
-                                <div class="col text-center bg-primary ms-3">
-                                    <p class="fs-5 text-info"><i class="fs-4 text-info bi bi-sun-fill"></i> UV Index</p>
-                                    <p class="fs-3">{{ locationWeatherCondition?.uv ?? 0}}</p>
-                                </div>
-                            </div>
-
-                            <div class="row p-2 mt-3">
-                                <div class="col text-center bg-primary">
-                                    <p class="fs-5 text-info"><i class="fs-4 text-info bi bi-droplet"></i> Chance of Rain</p>
-                                    <p class="fs-3">{{ locationWeatherCondition?.precip_in ?? 0 }} in.</p>
-                                </div>
-                                <div class="col text-center bg-primary ms-3">
-                                    <p class="fs-5 text-info"><i class="fs-4 text-info bi bi-water"></i> Humidity</p>
-                                    <p class="fs-3">{{ locationWeatherCondition?.humidity ?? 0 }}%</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+                <div class="d-flex flex-row align-items-center">
+                    <img class="img-fluid p-2" style="width: 125px; height: 125px;"
+                        v-bind:src="locationWeatherCondition?.condition.icon ?? '/not-available-circle.png'"/>
+                    <div class="p-2">
+                        <p class="fs-2 fw-bold mb-0">{{ locationWeatherCondition?.temp_f ?? 'n/a'}}&deg</p>
+                        <p class="fs-4"> {{ locationWeatherCondition?.condition.text ?? 'n/a' }}</p>
+                    </div>    
                 </div>
+
+                <div class="row flex-grow-1">
+                    <!-- Today's Forecast -->
+                    <div class="col-12 bg-secondary rounded mt-5 p-3">
+                        <p class="fs-6 text-info">Today's Forecast</p>
+                        <div class="d-flex justify-content-between">
+                            <div class="col text-center border-info position-relative"
+                                v-for="(hour, index) in nextSixHours"
+                                :key="index" :class="{'border-start': index > 0}">
+                                <div class="icon-bar d-flex justify-content-center">
+                                    <img style="width:75px; height:75px;" v-bind:src="hour.condition.icon"/>
+                                </div>
+                                <p class="fs-3 mb-1">{{ Math.round(hour.temp_f) }}&deg;</p>
+                                <p class="mt-2 fs-5">{{ new Date(hour.time).getHours() }}:00</p>
+                                <div class="mx-auto" :style="{ height: hour.temp_f + '%' }"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Details (Aligned Properly) -->
+                    <div class="col-12 bg-secondary rounded mt-3 p-3">
+                        <p class="fs-6 text-info">Weather Conditions</p>
+                        
+                        <div class="row p-2">
+                            <div class="col text-center bg-primary me-5 rounded">
+                                <p class="fs-5 text-info"><i class="fs-4 text-info bi bi-thermometer-high"></i> Feels Like</p>
+                                <p class="fs-3">{{locationWeatherCondition?.feelslike_f ?? 0}}&deg;</p>
+                            </div>
+                            <div class="col text-center bg-primary ms-5 rounded">
+                                <p class="fs-5 text-info"><i class="fs-4 text-info bi bi-sun-fill"></i> UV Index</p>
+                                <p class="fs-3">{{ locationWeatherCondition?.uv ?? 0}}</p>
+                            </div>
+                        </div>
+
+                        <div class="row p-2 mt-3">
+                            <div class="col text-center bg-primary me-5 rounded">
+                                <p class="fs-5 text-info"><i class="fs-4 text-info bi bi-droplet"></i> Chance of Rain</p>
+                                <p class="fs-3">{{ locationWeatherCondition?.precip_in ?? 0 }} in.</p>
+                            </div>
+                            <div class="col text-center bg-primary ms-5 rounded">
+                                <p class="fs-5 text-info"><i class="fs-4 text-info bi bi-water"></i> Humidity</p>
+                                <p class="fs-3">{{ locationWeatherCondition?.humidity ?? 0 }}%</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7-Day Forecast -->
+        <div class=" bg-secondary rounded container-fluid d-flex flex-column flex-grow-1 justify-content-center m-0 mt-5">
+            <div class="rounded p-3 flex-grow-1 overflow-auto">
+                <p class="fs-6">7-Day Forecast</p>
             </div>
         </div>
     </div>
 </template>
+
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, computed } from "vue";
 import myRouter from "../routing";

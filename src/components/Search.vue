@@ -1,5 +1,5 @@
 <template>
-    <div class="d-flex align-content-center input-group input-group position-relative w-25">
+    <div class="d-flex align-content-center input-group input-group position-relative">
         <input class="bg-secondary p-1 w-100 border-0 rounded" aria-describedby="inputGroup-sizing-default"
             placeholder="Enter Location..."
             type="text"
