@@ -1,26 +1,22 @@
 <template>
-    <div class="container-fluid min-vh-100 bg-white d-flex flex-column p-3">
-        <!-- Search bar and button container -->
-        <div class="d-flex pb-3">
-            <div style="width:5%"></div>
-            
-            <div class="flex-grow-1">
-                <Search @update-location="fetchWeather" class="shadow rounded" style="width:63%"/>
-            </div>
-            <div>
-                <button @click="logout" class="btn btn-danger">Log Out</button>
-            </div>
-        </div>
-
-        <div class="d-flex flex-grow-1">
+    <div class="container-fluid min-vh-75 bg-white d-flex flex-column p-3">
+        <div class="row p-3">
             <!-- Left Menu -->
-            <div class="shadow bg-secondary rounded d-flex p-3 justify-content-center flex-grow-1" style="width:5%;">
+            <div class="shadow bg-secondary rounded d-flex justify-content-center flex-grow-1 col">
                 <p>test</p>
             </div>
 
             <!-- Main Screen -->
-            <div class="rounded container-fluid ms-3 me-3 d-flex flex-column col-7">
-                
+            <div class="rounded container-fluid ms-3 me-3 d-flex flex-column col-8">
+                <!-- Search bar and button container -->
+                <div class="d-flex flex-grow-1 justify-content-between pb-3">
+                    <div style="width: 75%;">
+                        <Search @update-location="fetchWeather" class="shadow rounded" />
+                    </div>
+                    <div>
+                        <button @click="logout" class="btn btn-danger">Log Out</button>
+                    </div>
+                </div>
                 <!-- Weather Info Container -->
                 <div class="container-fluid flex-grow-1 d-flex flex-column">
                     <p class="fs-1 font-monospace fw-bold mb-0 pe-3">{{ locationString }}</p>
@@ -34,16 +30,16 @@
                         </div>    
                     </div>
 
-                    <div class="row flex-grow-1">
+                    <div class="row flex-grow-1 ">
                         <!-- Today's Forecast -->
                         <div class="shadow col-12 bg-secondary rounded mt-5 p-3">
-                            <p class="fs-6 text-info">Today's Forecast</p>
+                            <p class="fs-6 text-info fw-bold">Today's Forecast</p>
                             <div class="d-flex justify-content-between">
                                 <div class="col text-center border-info position-relative"
                                     v-for="(hour, index) in nextSixHours"
                                     :key="index" :class="{'border-start': index > 0}">
                                     <div class="icon-bar d-flex justify-content-center">
-                                        <img style="width:75px; height:75px;" v-bind:src="hour.condition.icon"/>
+                                        <img style="width:100px; height:100px;" v-bind:src="hour.condition.icon"/>
                                     </div>
                                     <p class="fs-3 mb-1">{{ Math.round(hour.temp_f) }}&deg;</p>
                                     <p class="mt-2 fs-5">{{ new Date(hour.time).getHours() }}:00</p>
@@ -54,7 +50,7 @@
 
                         <!-- Details -->
                         <div class="shadow col-12 bg-secondary rounded mt-3 p-3">
-                            <p class="fs-6 text-info">Weather Conditions</p>
+                            <p class="fs-6 text-info fw-bold">Weather Conditions</p>
                             
                             <div class="row p-2">
                                 <div class="col text-center bg-primary me-5 rounded">
@@ -82,16 +78,22 @@
                 </div>
             </div>
 
-            <!-- 7-Day Forecast -->
-            <div class="shadow bg-secondary rounded container-fluid d-flex flex-column flex-grow-1 justify-content-center m-0">
-                <div class="rounded p-3 flex-grow-1 overflow-auto">
-                    <p class="fs-6">2-Day Forecast</p>
-    
-                    <div class="col text-center border-info position-relative" v-for="(day, index) in locationWeatherDaily.slice(1)" :key="index">
-                        <p>{{ getDayLabel(index+1) }}</p>
-                        <p>{{ day.condition }}</p>
-                        <p>{{ day.avghumidity }}</p>
-                    </div>
+            <!-- 2-Day Forecast -->
+            <div class="shadow bg-secondary rounded container-fluid d-flex flex-column justify-content-center m-0 col">
+                <div class="rounded p-3 flex-grow-1">
+                    <p class="fs-6 fw-bold text-info">2-Day Forecast</p>
+                        <div class="col justify-content-center">
+                            <div
+                                class="row d-flex flex-column text-center align-items-center"
+                                v-for="(day, index) in locationWeatherDaily"
+                                :key="index"
+                            >
+                                <p class="fs-6">{{ getDayLabel(index) }}</p>
+                                <img :src="day.condition.icon" style="width: 125px; height: 100px;" />
+                                <p>{{ day.condition.text }}</p>
+                                <p>{{ day.maxtemp_f }}&deg; | {{ day.mintemp_f }}&deg;</p>
+                            </div>
+                        </div>
                 </div>
             </div>
         </div>
@@ -244,21 +246,6 @@ onMounted(() => {
         unsubscribeAuth();
     });
 });
-
-// onMounted(async () => {
-//     // const favoriteLocation = await fetchFavoriteLocation();
-//     if (user.value) {
-//         const favoriteLocation = await fetchFavoriteLocation(user.value);
-//         if (favoriteLocation) {
-//             fetchWeather(favoriteLocation);
-//         } else {
-//             console.log("NO");
-//         }
-//         //fetchWeather(favoriteLocations.value[0].id);
-//         //fetchWeather(randomLocation);
-//         //getAllNews();
-//     }
-// });
 
 const readFavorites = () => {
   const unsubscribeSnapshot = onSnapshot(Coll.value, (querySnapshot: QuerySnapshot<DocumentData>) => {
@@ -428,6 +415,9 @@ const nextSixHours = computed(() => {
   if (startIndex === -1) {
     startIndex = 0;
   }
+
+  console.log(startIndex)
+  console.log(startIndex+6)
   
   // Return only the next 6 hours
   return locationWeatherHourly.value.slice(startIndex, startIndex + 6);
