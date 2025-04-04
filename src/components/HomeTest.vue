@@ -1,87 +1,98 @@
 <template>
-    <div class="container-fluid min-vh-100 bg-white d-flex p-3">
-        <!-- Left Menu -->
-        <div class="bg-secondary rounded d-flex p-3 justify-content-center flex-grow-1" style="width:5%;">
-            <p>test</p>
-        </div>
-
-        <!-- Main Screen -->
-        <div class="rounded container-fluid ms-3 me-3 d-flex flex-column flex-grow-1">
-            <!-- Search bar and button container -->
-            <div class="d-flex justify-content-between align-items-center pb-3">
-                <div class="flex-grow-1 me-3">
-                    <Search @update-location="fetchWeather"/>
-                </div>
-                <div>
-                    <button @click="logout" class="btn btn-danger">Log Out</button>
-                </div>
-            </div>
+    <div class="container-fluid min-vh-100 bg-white d-flex flex-column p-3">
+        <!-- Search bar and button container -->
+        <div class="d-flex pb-3">
+            <div style="width:5%"></div>
             
-            <!-- Weather Info Container -->
-            <div class="container-fluid flex-grow-1 d-flex flex-column">
-                <p class="fs-1 font-monospace fw-bold mb-0 pe-3">{{ locationString }}</p>
-                
-                <div class="d-flex flex-row align-items-center">
-                    <img class="img-fluid p-2" style="width: 125px; height: 125px;"
-                        v-bind:src="locationWeatherCondition?.condition.icon ?? '/not-available-circle.png'"/>
-                    <div class="p-2">
-                        <p class="fs-2 fw-bold mb-0">{{ locationWeatherCondition?.temp_f ?? 'n/a'}}&deg</p>
-                        <p class="fs-4"> {{ locationWeatherCondition?.condition.text ?? 'n/a' }}</p>
-                    </div>    
-                </div>
+            <div class="flex-grow-1">
+                <Search @update-location="fetchWeather" class="shadow rounded" style="width:63%"/>
+            </div>
+            <div>
+                <button @click="logout" class="btn btn-danger">Log Out</button>
+            </div>
+        </div>
 
-                <div class="row flex-grow-1">
-                    <!-- Today's Forecast -->
-                    <div class="col-12 bg-secondary rounded mt-5 p-3">
-                        <p class="fs-6 text-info">Today's Forecast</p>
-                        <div class="d-flex justify-content-between">
-                            <div class="col text-center border-info position-relative"
-                                v-for="(hour, index) in nextSixHours"
-                                :key="index" :class="{'border-start': index > 0}">
-                                <div class="icon-bar d-flex justify-content-center">
-                                    <img style="width:75px; height:75px;" v-bind:src="hour.condition.icon"/>
-                                </div>
-                                <p class="fs-3 mb-1">{{ Math.round(hour.temp_f) }}&deg;</p>
-                                <p class="mt-2 fs-5">{{ new Date(hour.time).getHours() }}:00</p>
-                                <div class="mx-auto" :style="{ height: hour.temp_f + '%' }"></div>
-                            </div>
-                        </div>
+        <div class="d-flex flex-grow-1">
+            <!-- Left Menu -->
+            <div class="shadow bg-secondary rounded d-flex p-3 justify-content-center flex-grow-1" style="width:5%;">
+                <p>test</p>
+            </div>
+
+            <!-- Main Screen -->
+            <div class="rounded container-fluid ms-3 me-3 d-flex flex-column col-7">
+                
+                <!-- Weather Info Container -->
+                <div class="container-fluid flex-grow-1 d-flex flex-column">
+                    <p class="fs-1 font-monospace fw-bold mb-0 pe-3">{{ locationString }}</p>
+                    
+                    <div class="d-flex flex-row align-items-center">
+                        <img class="img-fluid p-2" style="width: 125px; height: 125px;"
+                            v-bind:src="locationWeatherCondition?.condition.icon ?? '/not-available-circle.png'"/>
+                        <div class="p-2">
+                            <p class="fs-2 fw-bold mb-0">{{ locationWeatherCondition?.temp_f ?? 'n/a'}}&deg</p>
+                            <p class="fs-4"> {{ locationWeatherCondition?.condition.text ?? 'n/a' }}</p>
+                        </div>    
                     </div>
 
-                    <!-- Details (Aligned Properly) -->
-                    <div class="col-12 bg-secondary rounded mt-3 p-3">
-                        <p class="fs-6 text-info">Weather Conditions</p>
-                        
-                        <div class="row p-2">
-                            <div class="col text-center bg-primary me-5 rounded">
-                                <p class="fs-5 text-info"><i class="fs-4 text-info bi bi-thermometer-high"></i> Feels Like</p>
-                                <p class="fs-3">{{locationWeatherCondition?.feelslike_f ?? 0}}&deg;</p>
-                            </div>
-                            <div class="col text-center bg-primary ms-5 rounded">
-                                <p class="fs-5 text-info"><i class="fs-4 text-info bi bi-sun-fill"></i> UV Index</p>
-                                <p class="fs-3">{{ locationWeatherCondition?.uv ?? 0}}</p>
+                    <div class="row flex-grow-1">
+                        <!-- Today's Forecast -->
+                        <div class="shadow col-12 bg-secondary rounded mt-5 p-3">
+                            <p class="fs-6 text-info">Today's Forecast</p>
+                            <div class="d-flex justify-content-between">
+                                <div class="col text-center border-info position-relative"
+                                    v-for="(hour, index) in nextSixHours"
+                                    :key="index" :class="{'border-start': index > 0}">
+                                    <div class="icon-bar d-flex justify-content-center">
+                                        <img style="width:75px; height:75px;" v-bind:src="hour.condition.icon"/>
+                                    </div>
+                                    <p class="fs-3 mb-1">{{ Math.round(hour.temp_f) }}&deg;</p>
+                                    <p class="mt-2 fs-5">{{ new Date(hour.time).getHours() }}:00</p>
+                                    <div class="mx-auto" :style="{ height: hour.temp_f + '%' }"></div>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="row p-2 mt-3">
-                            <div class="col text-center bg-primary me-5 rounded">
-                                <p class="fs-5 text-info"><i class="fs-4 text-info bi bi-droplet"></i> Chance of Rain</p>
-                                <p class="fs-3">{{ locationWeatherCondition?.precip_in ?? 0 }} in.</p>
+                        <!-- Details -->
+                        <div class="shadow col-12 bg-secondary rounded mt-3 p-3">
+                            <p class="fs-6 text-info">Weather Conditions</p>
+                            
+                            <div class="row p-2">
+                                <div class="col text-center bg-primary me-5 rounded">
+                                    <p class="fs-5 text-info"><i class="fs-4 text-info bi bi-thermometer-high"></i> Feels Like</p>
+                                    <p class="fs-3">{{locationWeatherCondition?.feelslike_f ?? 0}}&deg;</p>
+                                </div>
+                                <div class="col text-center bg-primary ms-5 rounded">
+                                    <p class="fs-5 text-info"><i class="fs-4 text-info bi bi-sun-fill"></i> UV Index</p>
+                                    <p class="fs-3">{{ locationWeatherCondition?.uv ?? 0}}</p>
+                                </div>
                             </div>
-                            <div class="col text-center bg-primary ms-5 rounded">
-                                <p class="fs-5 text-info"><i class="fs-4 text-info bi bi-water"></i> Humidity</p>
-                                <p class="fs-3">{{ locationWeatherCondition?.humidity ?? 0 }}%</p>
+
+                            <div class="row p-2 mt-3">
+                                <div class="col text-center bg-primary me-5 rounded">
+                                    <p class="fs-5 text-info"><i class="fs-4 text-info bi bi-droplet"></i> Chance of Rain</p>
+                                    <p class="fs-3">{{ locationWeatherCondition?.precip_in ?? 0 }} in.</p>
+                                </div>
+                                <div class="col text-center bg-primary ms-5 rounded">
+                                    <p class="fs-5 text-info"><i class="fs-4 text-info bi bi-water"></i> Humidity</p>
+                                    <p class="fs-3">{{ locationWeatherCondition?.humidity ?? 0 }}%</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- 7-Day Forecast -->
-        <div class=" bg-secondary rounded container-fluid d-flex flex-column flex-grow-1 justify-content-center m-0 mt-5">
-            <div class="rounded p-3 flex-grow-1 overflow-auto">
-                <p class="fs-6">7-Day Forecast</p>
+            <!-- 7-Day Forecast -->
+            <div class="shadow bg-secondary rounded container-fluid d-flex flex-column flex-grow-1 justify-content-center m-0">
+                <div class="rounded p-3 flex-grow-1 overflow-auto">
+                    <p class="fs-6">2-Day Forecast</p>
+    
+                    <div class="col text-center border-info position-relative" v-for="(day, index) in locationWeatherDaily.slice(1)" :key="index">
+                        <p>{{ getDayLabel(index+1) }}</p>
+                        <p>{{ day.condition }}</p>
+                        <p>{{ day.avghumidity }}</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -109,13 +120,16 @@ import {
     getDocs,
     DocumentData,
     QuerySnapshot,
-CollectionReference,
-QueryDocumentSnapshot,
+    CollectionReference,
+    QueryDocumentSnapshot,
+    limit,
+    query,
 } from "firebase/firestore";
 import { db } from "../main";
+
 //import { selectAllNews } from "../main";
 
-const locationString = ref<string>("No Location Selected");
+const locationString = ref<string>("Loading...");
 const locationWeatherCondition = ref<weatherCondition>();
 const locationWeatherHourly = ref<weatherHourlyForecast[]>([]);
 const locationWeatherDaily = ref<weatherDailyForcast[]>([]);
@@ -147,11 +161,11 @@ const checkStar = computed(() => {
 });
 
 const fetchWeather = async (location: string) => {
-    console.log("Location:", location);
+    //console.log("Location:", location);
     const weather = await getWeather(location, 3);
 
     if (weather) {
-        console.log("Weather:", weather);
+        // console.log("Weather:", weather);
     } else {
         console.log("No weather found");
     }
@@ -166,53 +180,85 @@ const fetchWeather = async (location: string) => {
         (hour: weatherHourlyForecast) => hour
     );
     locationWeatherDaily.value = dayData.map((day: any) => day.day);
-    console.log(locationWeatherDaily.value);
+    // console.log(locationWeatherDaily.value);
 };
 
-const fetchRandomLocation = async () => {
-    const popularLocationsRef = collection(db, "Popular");
-    const querySnapshot = await getDocs(popularLocationsRef);
-    const locations: any = [];
+const getDayLabel = (offset: number): string => {
+    const today = new Date();
+    const targetDate = new Date(today);
+    targetDate.setDate(today.getDate() + offset);
 
-    querySnapshot.forEach((doc) => {
-        locations.push(doc.data().name);
-    });
-
-    const randomIndex = Math.floor(Math.random() * locations.length);
-    return locations[randomIndex];
+    return targetDate.toLocaleDateString('en-US', { weekday: 'long' });
 };
 
-onMounted(async () => {
-    const randomLocation = await fetchRandomLocation();
-    if (randomLocation) {
-        fetchWeather(randomLocation);
-        getAllNews();
+const fetchFavoriteLocation = async (userId: string) => {
+    if (!userId) {
+        console.error("UserID is undefined or null.");
+        return null;
     }
-});
+
+    const favoritesRef = collection(db, 'Users', userId, 'Favorites');
+
+    const q = query(favoritesRef, limit(1));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+        console.log ("No favorites found for this user.");
+        return null;
+    }
+
+    const firstFavorite = querySnapshot.docs[0];
+    return firstFavorite.data().name;
+};
+
 
 const auth = getAuth();
 const user = ref<string>("");
 const Coll = ref();
 
 onMounted(() => {
-  const unsubscribeAuth = onAuthStateChanged(auth, (userAuth: User | null) => {
-    if (userAuth) {
-      // User is signed in.
-      user.value = userAuth.email || "";
-      Coll.value = collection(db, "Users", user.value, "Favorites");
-      readFavorites();
-      console.log("Auth changed", userAuth.email);
-    } else {
-      // No user is signed in.
-      console.log("User is signed out.");
-    }
-  });
-
-  // Clean up the auth listener when the component is unmounted
-  onBeforeUnmount(() => {
-    unsubscribeAuth();
-  });
+    const unsubscribeAuth = onAuthStateChanged(auth, async (userAuth: User | null) => {
+        if (userAuth) {
+            // User is signed in.
+            user.value = userAuth.email || "";
+            Coll.value = collection(db, "Users", user.value, "Favorites");
+            
+            readFavorites();
+            console.log("Auth changed", userAuth.email);
+        
+            const favLocation = await fetchFavoriteLocation(user.value);
+            if (favLocation) {
+                fetchWeather(favLocation);
+            } else {
+                locationString.value = "No location selected";
+                console.log("No favorite location found.")
+            }
+        } else {
+            // No user is signed in.
+            console.log("User is signed out.");
+        }
+    });
+    
+    // Clean up the auth listener when the component is unmounted
+    onBeforeUnmount(() => {
+        unsubscribeAuth();
+    });
 });
+
+// onMounted(async () => {
+//     // const favoriteLocation = await fetchFavoriteLocation();
+//     if (user.value) {
+//         const favoriteLocation = await fetchFavoriteLocation(user.value);
+//         if (favoriteLocation) {
+//             fetchWeather(favoriteLocation);
+//         } else {
+//             console.log("NO");
+//         }
+//         //fetchWeather(favoriteLocations.value[0].id);
+//         //fetchWeather(randomLocation);
+//         //getAllNews();
+//     }
+// });
 
 const readFavorites = () => {
   const unsubscribeSnapshot = onSnapshot(Coll.value, (querySnapshot: QuerySnapshot<DocumentData>) => {
